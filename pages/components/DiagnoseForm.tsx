@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import DiagnoseList from "../model/DiagnoseList";
-import DiagnoseModel from "../model/DiagnoseModel";
-import AgeData from "../static/AgeData";
-import BreathFrequency from "../static/BreathFrequencyData";
-import DiagnoseData from "../static/DiagnoseData";
-import FaceExpressionData from "../static/FaceExpressionData";
-import PulseData from "../static/PulseData";
-import TemperatureData from "../static/TemperatureData";
+import DiagnoseList from "../../model/DiagnoseList";
+import DiagnoseModel from "../../model/DiagnoseModel";
+import AgeData from "../../static/AgeData";
+import BreathFrequency from "../../static/BreathFrequencyData";
+import FaceExpressionData from "../../static/FaceExpressionData";
+import PulseData from "../../static/PulseData";
+import TemperatureData from "../../static/TemperatureData";
 import DiagnoseFormStyle from "./DiagnoseFormStyle";
 import './DiagnoseFormStyle.tsx';
 
