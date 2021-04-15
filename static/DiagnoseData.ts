@@ -1,5 +1,5 @@
 const DiagnoseData = {
-    BVD: "BVD(Bovine Viral Diarrhea",
+    BVD: "BVD(Bovine Viral Diarrhea)",
     JEMBRANA: "Jembrana",
     MCF: "MCF",
     ANTHRAX: "Anthrax",

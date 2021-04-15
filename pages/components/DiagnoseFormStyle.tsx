@@ -1,6 +1,6 @@
 export default function DiagnoseFormStyle(){
     return (
-        <style jsx>{
+        <style jsx={true}>{
         `
         .form-container {
             width: 100%;
