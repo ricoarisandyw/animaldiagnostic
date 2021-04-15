@@ -42,13 +42,33 @@ export default function DiagnoseForm(){
         swollen: false,
         hypersalivation: false,
     })
-    const [diagnoseResult, setDiagnoseResult] = useState<DiagnoseModel[]>(null)
+    const [diagnoseResult, setDiagnoseResult] = useState<string>(null)
+    const [symptomsList, setSymptomList] = useState<string[]>([])
+    const [symptomsSelected, setSymptomsSelected] = useState<string>("")
+
+    const updateSymptoms = (newDiagnose) => {
+        const diagnoses = DiagnoseList.filter((diagnose) => (
+            diagnose.age.includes(newDiagnose.age) &&
+            diagnose.temperature.includes(newDiagnose.temperature) &&
+            diagnose.breathFrequency.includes(newDiagnose.breathFrequency) &&
+            diagnose.pulse.includes(newDiagnose.pulse) &&
+            diagnose.faceExpression === newDiagnose.faceExpression &&
+            diagnose.swollen.includes(newDiagnose.swollen) &&
+            diagnose.hypersalivation.includes(newDiagnose.hypersalivation)
+        ))
+        setSymptomList(diagnoses.map((diag => diag.symptoms)))
+    }
 
     const setData = (event: React.ChangeEvent<HTMLInputElement>) => {
         setDiagnoseForm({
             ...diagnoseForm,
             [event.target.name]: event.target.value,
         })
+        const newDiagnose = {
+            ...diagnoseForm,
+            [event.target.name]: event.target.value,
+        }
+        updateSymptoms(newDiagnose)
     }
 
     const setCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -56,23 +76,33 @@ export default function DiagnoseForm(){
             ...diagnoseForm,
             [event.target.name]: !diagnoseForm[event.target.name],
         })
+        const newDiagnose = {
+            ...diagnoseForm,
+            [event.target.name]: !diagnoseForm[event.target.name],
+        }
+        updateSymptoms(newDiagnose)
     }
 
     const onDiagnose = () => {
-        const diagnose = DiagnoseList.filter((diagnose) => (
+        const diagnose = DiagnoseList.find((diagnose) => (
             diagnose.age.includes(diagnoseForm.age) &&
             diagnose.temperature.includes(diagnoseForm.temperature) &&
             diagnose.breathFrequency.includes(diagnoseForm.breathFrequency) &&
             diagnose.pulse.includes(diagnoseForm.pulse) &&
             diagnose.faceExpression === diagnoseForm.faceExpression &&
             diagnose.swollen.includes(diagnoseForm.swollen) &&
-            diagnose.hypersalivation.includes(diagnoseForm.hypersalivation)
+            diagnose.hypersalivation.includes(diagnoseForm.hypersalivation) &&
+            diagnose.symptoms === symptomsSelected
         ))
-        setDiagnoseResult(diagnose)
+        setDiagnoseResult(diagnose.diagnose)
     }
 
     const onReset = () => {
         setDiagnoseResult(null)
+    }
+
+    const setSymptoms = (event: React.ChangeEvent<HTMLInputElement>) => {
+        setSymptomsSelected(event.target.value)
     }
 
     return (
@@ -108,16 +138,18 @@ export default function DiagnoseForm(){
                     <label className="form-label">Hypersalivasi</label><br />
                     <input type="checkbox" onChange={setCheckbox} name="hypersalivation" checked={diagnoseForm.hypersalivation} />
                 </div>
+                <div className="form-group">
+                    <label className="form-label">Gejala</label>
+                    <RenderData onChange={setSymptoms} name="symptoms" values={symptomsList} />
+                </div>
                 <div>
-                    <input type="button" className="btn" value="Mulai Diagnosa" onClick={onDiagnose} />
+                    <input type="button" className="btn" value="Hasil Diagnosa" onClick={onDiagnose} />
                     <input type="button" className="btn cancel" value="Reset" onClick={onReset} />
                 </div>
                 {diagnoseResult &&
                     <div className="result">
                         HASIL DIAGNOSA <br />
-                        {diagnoseResult?.length > 0
-                        ? diagnoseResult.map((diagnose) => diagnose.diagnose + ", ") : " TIDAK DITEMUKAN"
-                    }
+                        {diagnoseResult}
                     </div>
                 }
             </form>
