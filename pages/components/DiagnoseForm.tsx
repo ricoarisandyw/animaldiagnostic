@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import DiagnoseList from "../../model/DiagnoseList";
 import DiagnoseModel from "../../model/DiagnoseModel";
+import DiagnoseDB from "../../services/DiagnoseDB";
 import AgeData from "../../static/AgeData";
 import BreathFrequency from "../../static/BreathFrequencyData";
+import DiagnoseData from "../../static/DiagnoseData";
 import FaceExpressionData from "../../static/FaceExpressionData";
 import PulseData from "../../static/PulseData";
 import TemperatureData from "../../static/TemperatureData";
@@ -14,15 +16,22 @@ const RenderData = (inputProps) => (
         {
             inputProps.values.map((value) => (
                 <React.Fragment key={value}>
-                    <input required onChange={inputProps.onChange} type="radio" name={inputProps.name} value={value} />
-                    <label>{value}</label><br />
+                    <label className="radio-button">
+                        <input required onChange={inputProps.onChange} type="radio" name={inputProps.name} value={value} />
+                        <span className="label-visible">
+                            <span className="fake-radiobutton"></span>
+                            {value}
+                        </span>
+                    </label>
+                    <br />
+                    <br />
                 </React.Fragment>
             ))
         }
     </div>
 )
 
-interface DiagnoseFormModel {
+export interface DiagnoseFormModel {
     age: string
     temperature: string
     breathFrequency: string
@@ -30,9 +39,11 @@ interface DiagnoseFormModel {
     faceExpression: string
     swollen: boolean
     hypersalivation: boolean
+    noAgenda: string
+    date: Date
 }
 
-export default function DiagnoseForm(){
+export default function DiagnoseForm(props){
     const [diagnoseForm, setDiagnoseForm] = useState<DiagnoseFormModel>({
         age: AgeData.OLD,
         breathFrequency: BreathFrequency.NORMAL,
@@ -41,6 +52,8 @@ export default function DiagnoseForm(){
         temperature: TemperatureData.NORMAL,
         swollen: false,
         hypersalivation: false,
+        noAgenda: "",
+        date: new Date()
     })
     const [diagnoseResult, setDiagnoseResult] = useState<string>(null)
     const [symptomsList, setSymptomList] = useState<string[]>([])
@@ -56,6 +69,9 @@ export default function DiagnoseForm(){
             diagnose.swollen.includes(newDiagnose.swollen) &&
             diagnose.hypersalivation.includes(newDiagnose.hypersalivation)
         ))
+        if(diagnoses.length === 1){
+            setSymptomsSelected(diagnoses[0].symptoms)
+        }
         setSymptomList(diagnoses.map((diag => diag.symptoms)))
     }
 
@@ -64,11 +80,13 @@ export default function DiagnoseForm(){
             ...diagnoseForm,
             [event.target.name]: event.target.value,
         })
-        const newDiagnose = {
-            ...diagnoseForm,
-            [event.target.name]: event.target.value,
+        if(event.target.name !== "noAgenda" && event.target.name !== "date"){
+            const newDiagnose = {
+                ...diagnoseForm,
+                [event.target.name]: event.target.value,
+            }
+            updateSymptoms(newDiagnose)
         }
-        updateSymptoms(newDiagnose)
     }
 
     const setCheckbox = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -83,7 +101,7 @@ export default function DiagnoseForm(){
         updateSymptoms(newDiagnose)
     }
 
-    const onDiagnose = () => {
+    const onDiagnose = async () => {
         const diagnose = DiagnoseList.find((diagnose) => (
             diagnose.age.includes(diagnoseForm.age) &&
             diagnose.temperature.includes(diagnoseForm.temperature) &&
@@ -94,7 +112,16 @@ export default function DiagnoseForm(){
             diagnose.hypersalivation.includes(diagnoseForm.hypersalivation) &&
             diagnose.symptoms === symptomsSelected
         ))
-        setDiagnoseResult(diagnose.diagnose)
+        if(diagnose)
+            setDiagnoseResult(diagnose.diagnose)
+        else
+            setDiagnoseResult(DiagnoseData.NORMAL)
+        await DiagnoseDB().add({
+            ...diagnoseForm,
+            date: diagnoseForm.date,
+            noAgenda: diagnoseForm.noAgenda
+        })
+        props.onSubmit()
     }
 
     const onReset = () => {
@@ -107,9 +134,18 @@ export default function DiagnoseForm(){
 
     return (
         <div className="form-container">
-            <form className="form">
+            <form className="form shadow">
                 <DiagnoseFormStyle />
                 <h1>Form Diagnosa</h1>
+                <hr />
+                <div className="form-group">
+                    <label className="form-label">Nomor Agenda</label><br />
+                    <input className="form-input" name="noAgenda" placeholder="nomor agenda" onChange={setData} />
+                </div>
+                <div className="form-group">
+                    <label className="form-label">Tanggal Pemeriksaan</label><br />
+                    <input type="date" name="date" className="form-input" placeholder="tanggal pemeriksaan" />
+                </div>
                 <div className="form-group">
                     <label className="form-label">Usia</label><br />
                     <RenderData onChange={setData} name="age" values={[AgeData.OLD, AgeData.YOUNG]} />          
@@ -131,20 +167,34 @@ export default function DiagnoseForm(){
                     <RenderData onChange={setData} name="faceExpression" values={[FaceExpressionData.GOOD, FaceExpressionData.SLUGGISH]} />
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Pembengkakan Lgl.</label><br />
-                    <input type="checkbox" onChange={setCheckbox} name="swollen" checked={diagnoseForm.swollen} />
+                    <label className="form-label">Pembengkakan Lgl.</label>
+                    <label className="checkbox">
+                        <input type="checkbox" onChange={setCheckbox} name="swollen" checked={diagnoseForm.swollen} />
+                        <span className="label-visible">
+                            <span className="fake-checkbox"></span>
+                        </span>
+                    </label>
                 </div>
                 <div className="form-group">
-                    <label className="form-label">Hypersalivasi</label><br />
-                    <input type="checkbox" onChange={setCheckbox} name="hypersalivation" checked={diagnoseForm.hypersalivation} />
+                    <label className="form-label">Hypersalivasi</label>
+                    <label className="checkbox">
+                        <input type="checkbox" onChange={setCheckbox} name="hypersalivation" checked={diagnoseForm.hypersalivation} />
+                        <span className="label-visible">
+                            <span className="fake-checkbox"></span>
+                        </span>
+                    </label>
                 </div>
                 <div className="form-group">
                     <label className="form-label">Gejala</label>
-                    <RenderData onChange={setSymptoms} name="symptoms" values={symptomsList} />
+                    {
+                        symptomsList.length > 1 ?
+                        <RenderData onChange={setSymptoms} name="symptoms" values={symptomsList} /> :
+                        "Tidak ada gejala"
+                    }
                 </div>
                 <div>
-                    <input type="button" className="btn" value="Hasil Diagnosa" onClick={onDiagnose} />
-                    <input type="button" className="btn cancel" value="Reset" onClick={onReset} />
+                    <input type="button" className="btn btn-primary" value="Hasil Diagnosa" onClick={onDiagnose} />
+                    <input type="button" className="btn btn-cancel" value="Reset" onClick={onReset} />
                 </div>
                 {diagnoseResult &&
                     <div className="result">

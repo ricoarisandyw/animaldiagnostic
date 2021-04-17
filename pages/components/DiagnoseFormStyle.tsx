@@ -5,31 +5,21 @@ export default function DiagnoseFormStyle(){
         .form-container {
             width: 100%;
             padding: 1rem;
-            margin-top: 1rem;    
+            margin-top: 1rem;
+            background: white;    
         }
         .form {
             padding: 1rem;
-            border: 1px solid black;
             border-radius: 5px;
         }
         .form-label {
             font-weight: bold;
         }
-        .btn {
-            padding: .5rem 1rem;
-            background-color: #3D70F3;
-            border: none;
-            border-radius: 5px;
-            margin-right: 1rem;
-            color: white;
-            font-size: 1rem;
-            cursor: pointer;
-        }
-        .btn:hover {
-            opacity: 0.9;
-        }
-        .cancel {
+        .btn-cancel {
             background-color: #D63637;
+        }
+        .btn-cancel:hover {
+            background-color: #e64242;
         }
         .form-group {
             display: flex;

@@ -1,7 +1,7 @@
 const TemperatureData = {
-    NORMAL: "NORMAL",
-    HYPERTERMI: "HYPERTERMI",
-    HYPOTERMI: "HYPOTERMI"
+    NORMAL: "Normal",
+    HYPERTERMI: "Hypertermi",
+    HYPOTERMI: "Hypotermi"
 }
 
 export default TemperatureData
