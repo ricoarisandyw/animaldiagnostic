@@ -8,6 +8,7 @@
     "start": "next start"
   },
   "dependencies": {
+    "idb-keyval": "^5.0.5",
     "next": "^10.0.0",
     "next-pwa": "^5.2.9",
     "react": "17.0.1",
