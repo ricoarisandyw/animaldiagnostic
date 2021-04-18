@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import DiagnoseList from "../../model/DiagnoseList";
-import DiagnoseModel from "../../model/DiagnoseModel";
 import DiagnoseDB from "../../services/DiagnoseDB";
 import AgeData from "../../static/AgeData";
 import BreathFrequency from "../../static/BreathFrequencyData";
@@ -8,8 +7,6 @@ import DiagnoseData from "../../static/DiagnoseData";
 import FaceExpressionData from "../../static/FaceExpressionData";
 import PulseData from "../../static/PulseData";
 import TemperatureData from "../../static/TemperatureData";
-import DiagnoseFormStyle from "./DiagnoseFormStyle";
-import './DiagnoseFormStyle.tsx';
 
 const RenderData = (inputProps) => (
     <div>
@@ -41,6 +38,8 @@ export interface DiagnoseFormModel {
     hypersalivation: boolean
     noAgenda: string
     date: Date
+    diagnose?: string
+    differentialDiagnose?: string
 }
 
 export default function DiagnoseForm(props){
@@ -116,8 +115,11 @@ export default function DiagnoseForm(props){
             setDiagnoseResult(diagnose.diagnose)
         else
             setDiagnoseResult(DiagnoseData.NORMAL)
+
         await DiagnoseDB().add({
             ...diagnoseForm,
+            diagnose: diagnose ? diagnose.diagnose : DiagnoseData.NORMAL,
+            differentialDiagnose: diagnose ? diagnose.differentialDiagnose : "-",
             date: diagnoseForm.date,
             noAgenda: diagnoseForm.noAgenda
         })
@@ -135,7 +137,6 @@ export default function DiagnoseForm(props){
     return (
         <div className="form-container">
             <form className="form shadow">
-                <DiagnoseFormStyle />
                 <h1>Form Diagnosa</h1>
                 <hr />
                 <div className="form-group">

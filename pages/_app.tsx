@@ -1,5 +1,5 @@
 import Head from 'next/head'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import MenuData from '../static/MenuData'
 import DiagnoseForm from './components/DiagnoseForm'
 import DiagnoseList from './components/DiagnoseList'
@@ -7,6 +7,18 @@ import './styles.css'
 
 export default function MyApp() {
   const [menu, selectedMenu] = useState(MenuData.HOME)
+  const [print, setPrint] = useState(false)
+
+  const onPrint = () => {
+    setPrint(true)
+  }
+
+  useEffect(() => {
+    if(print) {
+      window.print()
+      setPrint(false)
+    }
+  }, [onPrint])
 
   return (
     <div>
@@ -20,7 +32,7 @@ export default function MyApp() {
         <meta name="description" content="Description" />
         <meta name="keywords" content="Keywords" />
         <title>Animal Diagnose</title>
-        
+
         <link rel="manifest" href="/manifest.json" />
         <link
           href="/icons/favicon-16x16.png"
@@ -39,15 +51,21 @@ export default function MyApp() {
       </Head>
 
       <main>
-        <div className="header" />
+        {!print && <div className="header" />}
         <div className="container">
             <h1 className="title">
             Aplikasi Diagnosa Hewan
             </h1>
             <div style={{margin:"1rem 0rem"}}>
-            <button className="btn btn-primary" onClick={() => selectedMenu(MenuData.HOME)}>Beranda</button>
-            <button className="btn btn-secondary" onClick={() => selectedMenu(MenuData.FORM)}>Tambah Data</button>
-            {menu === MenuData.HOME && <button className="btn btn-secondary">Cetak Data</button>}
+              {
+                !print && (
+                  <>
+                    <button className="btn btn-primary" onClick={() => selectedMenu(MenuData.HOME)}>Beranda</button>
+                    <button className="btn btn-secondary" onClick={() => selectedMenu(MenuData.FORM)}>Tambah Data</button>
+                    {menu === MenuData.HOME && <button className="btn btn-secondary" onClick={onPrint}>Cetak Data</button>}
+                  </>      
+                )
+              }
             </div>
             {menu === MenuData.FORM && <DiagnoseForm onSubmit={() => selectedMenu(MenuData.HOME)} />}
             {menu === MenuData.HOME && <DiagnoseList />}

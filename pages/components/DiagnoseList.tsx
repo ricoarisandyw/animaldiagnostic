@@ -24,7 +24,7 @@ function extractDate(date:Date){
 export default function DiagnoseList(){
     const [diagnoseList, setDiagnoseList]  = useState<DiagnoseFormModel[]>([])
 
-    useEffect(() => {
+    const updateData = () => {
         DiagnoseDB().get()
         .then((diagnoseResponse) => {
             if(diagnoseResponse) setDiagnoseList(diagnoseResponse)
@@ -32,7 +32,19 @@ export default function DiagnoseList(){
         .catch((error) => {
             throw error
         })
+    }
+
+    useEffect(() => {
+        updateData()
     }, [])
+
+    const onDelete = async (index: number) => {
+        if(window.confirm("Apakah anda yakin")){
+            await DiagnoseDB().delete(index)
+            updateData()
+        }
+    }
+
     return (
         <div>
             <table className="table shadow">
@@ -45,11 +57,14 @@ export default function DiagnoseList(){
                         <th>Expresi Wajah</th>
                         <th>Pulse</th>
                         <th>Temperatur</th>
+                        <th>Hasil Diagnosa</th>
+                        <th>Differensial Diagnosa</th>
+                        <th>#</th>
                     </tr>
                 </thead>
                 <tbody>
                     {
-                        diagnoseList.map((diagnose) => {
+                        diagnoseList.map((diagnose, i) => {
                             return (
                                 <tr className="table-row" key={diagnose.noAgenda}>
                                     <td>{diagnose.noAgenda}</td>
@@ -59,6 +74,9 @@ export default function DiagnoseList(){
                                     <td>{diagnose.faceExpression}</td>
                                     <td>{diagnose.pulse}</td>
                                     <td>{diagnose.temperature}</td>
+                                    <td>{diagnose.diagnose}</td>
+                                    <td>{diagnose.differentialDiagnose}</td>
+                                    <td><button onClick={() => onDelete(i)} className="btn btn-cancel">HAPUS</button></td>
                                 </tr>
                             )
                         })
